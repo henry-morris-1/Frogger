@@ -358,10 +358,11 @@ export default class Frog extends Model {
         // Find which obstacles might be in the way to check collisions
         if (currRow > 0.75 && currRow < 6.25) {
             vec3.set(this.#drift, 0, 0, 0);
-            // return this.checkCarCollision(currRow);
-            return false;
+            return this.checkCarCollision(currRow);
+
         } else if (currRow > 7 && currRow < 12) {
             return this.checkBoundaryCollision() || (this.checkLogCollision(currRow) && this.checkTurtleCollision(currRow));
+            
         } else {
             vec3.set(this.#drift, 0, 0, 0);
             return false;
