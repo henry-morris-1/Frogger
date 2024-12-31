@@ -227,6 +227,8 @@ export default class Frog extends Model {
         if (Globals.modelCenters[this.#index][2] > 12.499) {
             Globals.homeCount++; // Increment the home count
 
+            document.getElementById("score").innerHTML = `Lily Pads: ${Globals.homeCount}`; // Update scoreboard
+
             (Globals.homeCount < 5) && this.scoreReset();
         }
     }
@@ -362,7 +364,7 @@ export default class Frog extends Model {
 
         } else if (currRow > 7 && currRow < 12) {
             return this.checkBoundaryCollision() || (this.checkLogCollision(currRow) && this.checkTurtleCollision(currRow));
-            
+
         } else {
             vec3.set(this.#drift, 0, 0, 0);
             return false;
