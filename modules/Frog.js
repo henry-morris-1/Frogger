@@ -139,6 +139,9 @@ export default class Frog extends Model {
         vec3.transformMat4(Globals.modelCenters[this.#index], Globals.modelCenters[this.#index], Globals.translate);
     }
 
+    /**
+     * Resets the frog's position and facing to the original location.
+     */
     resetPosition() {
         // Move the user back to the start
         vec3.set(this.#direction, 6.5 - Globals.modelCenters[this.#index][0], 0, 0.5 - Globals.modelCenters[this.#index][2]);
@@ -172,7 +175,7 @@ export default class Frog extends Model {
     }
 
     /**
-     * Resets the facing, velocity, and position of the frog
+     * Resets the frog after a score.
      */
     scoreReset() {
         // Set the a timeout for 1.5 sec
@@ -183,13 +186,12 @@ export default class Frog extends Model {
         mat4.copy(Globals.modelMatrices[Globals.modelSetCount - (Globals.homeCount + 1)], Globals.modelMatrices[this.#index]);
         vec3.copy(Globals.modelCenters[Globals.modelSetCount - (Globals.homeCount + 1)], Globals.modelCenters[this.#index]);
 
-        this.#facing = "up";
-        vec3.set(this.#velocity, 0, 0, 0);
-        vec3.set(this.#target, 6.5, 0.25, 0.5);
+        // Reset the position
+        this.resetPosition();
     }
 
     /**
-     * Resets the frog after a death
+     * Resets the frog after a death.
      */
     deathReset() {
         // Take a timeout to freeze the program on the frame where the user died
@@ -223,13 +225,16 @@ export default class Frog extends Model {
     /**
      * Checks if the player has a collision with a car.
      * @param {Number} currRow Current z position of the player model
+     * @returns true if the player is in contact with a car
      */
     checkCarCollision(currRow) {
+        // Get the bounding box of the player model
+        let playerBounds = this.bounds;
+
         // Loop over each car
         for (const car of Globals.cars) {
             if (Math.abs(currRow - car.row <= 0.5)) {
-                // Get the bounding box of the car and the player model
-                let playerBounds = this.bounds;
+                // Get the bounding box of the car
                 let carBounds = car.bounds;
 
                 // Get the edge check booleans
@@ -248,17 +253,93 @@ export default class Frog extends Model {
     }
 
     /**
+     * Checks if the player model hits a boundary while on a log/turtle.
+     * @returns true if the player hits a boundary
+     */
+    checkBoundaryCollision() {
+        // Get the bounding box of the player model
+        let playerBounds = this.bounds;
+
+        // Check if the player has hit an edge on the log
+        return (playerBounds.xMin <= 0 || playerBounds.xMax >= 13);
+    }
+
+    /**
+     * Checks if the player has a collision with a log.
+     * @param {Number} currRow Current z position of the player model
+     * @returns true if the player is not in contact with a log
+     */
+    checkLogCollision(currRow) {
+        // Get the bounding box of the player model
+        let playerBounds = this.bounds;
+
+        // Loop over each log
+        for (const log of Globals.logs) {
+            if (Math.abs(currRow - log.row <= 0.5)) {
+                // Get the bounding box of the log
+                let logBounds = log.bounds;
+
+                // Get the edge check booleans
+                let left = playerBounds.xMin < logBounds.xMax;
+                let right = playerBounds.xMax > logBounds.xMin;
+                let top = playerBounds.zMax > logBounds.zMin;
+                let bottom = playerBounds.zMin < logBounds.zMax;
+
+                // Return false if there is a collision
+                if (left && right && top && bottom) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Checks if the player has a collision with a turtle.
+     * @param {Number} currRow Current z position of the player model
+     * @returns true if the player is not in contact with a turtle
+     */
+    checkTurtleCollision(currRow) {
+        // Get the bounding box of the player model
+        let playerBounds = this.bounds;
+
+        // Loop over each turtle
+        for (const turtle of Globals.turtles) {
+            if (Math.abs(currRow - turtle.row <= 0.5)) {
+                // Get the bounding box of the turtle
+                let turtleBounds = turtle.bounds;
+
+                // Get the edge check booleans
+                let left = playerBounds.xMin < turtleBounds.xMax;
+                let right = playerBounds.xMax > turtleBounds.xMin;
+                let top = playerBounds.zMax > turtleBounds.zMin;
+                let bottom = playerBounds.zMin < turtleBounds.zMax;
+
+                // Return false if there is a collision and the turtle is above water
+                if (turtle.aboveWater && left && right && top && bottom) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
      * Checks collisions between the player and obstacles.
      * @returns true if the player should lose a life
      */
     checkCollision() {
+        // Get the current z position of the frog
         let currRow = Globals.modelCenters[this.#index][2];
 
+        // Find which obstacles might be in the way to check collisions
         if (currRow > 0.75 && currRow < 6.25) {
-            return this.checkCarCollision(currRow);;
+            return this.checkCarCollision(currRow);
+        } else if (currRow > 6.75 && currRow < 12.25) {
+            return this.checkBoundaryCollision() || (this.checkLogCollision(currRow) && this.checkTurtleCollision(currRow));
+        } else {
+            return false;
         }
-
-        return false;
     }
 
     /**

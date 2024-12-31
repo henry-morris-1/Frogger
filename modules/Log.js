@@ -19,8 +19,31 @@ export default class Log extends Model {
         this.#index = Globals.modelSetCount - 1;
         this.#lane = lane;
 
-        // Transform the car
+        // Transform the log
         this.transform(lane, offset);
+    }
+
+    /**
+     * Gets the row the log is in as a z-position.
+     * @returns y position of the log
+     */
+    get row() {
+        return Globals.modelCenters[this.#index][2];
+    }
+
+    /**
+     * Gets the bounding x and z values for the log.
+     * @returns Minium and maximum x and z positions of the model
+     */
+    get bounds() {
+        let center = Globals.modelCenters[this.#index];
+
+        return {
+            xMin: center[0] - 2,
+            xMax: center[0] + 2,
+            zMin: center[2] - 0.5,
+            zMax: center[2] + 0.5
+        };
     }
 
     /**

@@ -24,6 +24,37 @@ export default class Log extends Model {
     }
 
     /**
+     * Gets the row the turtle is in as a z-position.
+     * @returns y position of the turtle
+     */
+    get row() {
+        return Globals.modelCenters[this.#index][2];
+    }
+
+    /**
+     * Gets the bounding x and z values for the turtle.
+     * @returns Minium and maximum x and z positions of the model
+     */
+    get bounds() {
+        let center = Globals.modelCenters[this.#index];
+
+        return {
+            xMin: center[0] - 2,
+            xMax: center[0] + 2,
+            zMin: center[2] - 0.5,
+            zMax: center[2] + 0.5
+        };
+    }
+
+    /**
+     * Gets whether or not the turtle is above water.
+     * @return true if the turtle is above water, false if not
+     */
+    get aboveWater() {
+        return Globals.modelCenters[this.#index][1] > -0.1;
+    }
+
+    /**
      * Transforms the turtle model into the given lane.
      * @param {Number} lane Lane in which to place the turtle
      * @param {Number} offset Number turtle in the given lane
