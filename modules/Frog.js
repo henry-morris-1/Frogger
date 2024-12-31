@@ -13,6 +13,7 @@ export default class Frog extends Model {
     #acceleration = vec3.create();              // Acceleration due to the above forces
     #velocity = vec3.create();                  // Player velocity
     #precision = 0.001;                         // Precision cutoff for ending movement
+    #drift = vec3.create();                     // Drift induced by being on a log or turtle
 
     /**
      * Constructs a frog with the given transformations.
@@ -134,9 +135,13 @@ export default class Frog extends Model {
      * Updates the position of the player model.
      */
     updatePosition() {
-        mat4.fromTranslation(Globals.translate, this.getPlayerSpeedAndDirection());
-        mat4.multiply(Globals.modelMatrices[this.#index], Globals.translate, Globals.modelMatrices[this.#index]);
-        vec3.transformMat4(Globals.modelCenters[this.#index], Globals.modelCenters[this.#index], Globals.translate);
+        mat4.fromTranslation(Globals.translate, this.#drift);
+        vec3.transformMat4(this.#target, this.#target, Globals.translate);
+
+        // Player movement
+        mat4.fromTranslation(Globals.translate, this.getPlayerSpeedAndDirection()); // Get the appropriate translation matrix
+        mat4.multiply(Globals.modelMatrices[this.#index], Globals.translate, Globals.modelMatrices[this.#index]); // Translate model matrix
+        vec3.transformMat4(Globals.modelCenters[this.#index], Globals.modelCenters[this.#index], Globals.translate); // Translate center
     }
 
     /**
@@ -287,10 +292,17 @@ export default class Frog extends Model {
 
                 // Return false if there is a collision
                 if (left && right && top && bottom) {
+                    // Set the drift to the motion of the log
+                    let sign = 2 * (Math.floor(logBounds.zMin) % 2) - 1; // Get the +/- sign for the drift direction
+                    vec3.set(this.#drift, sign * 0.035, 0, 0);
+
                     return false;
                 }
             }
         }
+
+        // Set drift back to zero and return true
+        vec3.set(this.#drift, 0, 0, 0);
         return true;
     }
 
@@ -317,10 +329,17 @@ export default class Frog extends Model {
 
                 // Return false if there is a collision and the turtle is above water
                 if (turtle.aboveWater && left && right && top && bottom) {
+                    // Set the drift to the motion of the log
+                    let sign = 2 * (Math.floor(turtleBounds.zMin) % 2) - 1; // Get the +/- sign for the drift direction
+                    vec3.set(this.#drift, sign * 0.02845, 0, 0);
+
                     return false;
                 }
             }
         }
+        
+        // Set drift back to zero and return true
+        vec3.set(this.#drift, 0, 0, 0);
         return true;
     }
 
@@ -334,10 +353,12 @@ export default class Frog extends Model {
 
         // Find which obstacles might be in the way to check collisions
         if (currRow > 0.75 && currRow < 6.25) {
+            vec3.set(this.#drift, 0, 0, 0);
             return this.checkCarCollision(currRow);
-        } else if (currRow > 6.75 && currRow < 12.25) {
+        } else if (currRow > 7 && currRow < 12) {
             return this.checkBoundaryCollision() || (this.checkLogCollision(currRow) && this.checkTurtleCollision(currRow));
         } else {
+            vec3.set(this.#drift, 0, 0, 0);
             return false;
         }
     }
