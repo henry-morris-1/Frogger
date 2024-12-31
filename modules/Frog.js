@@ -199,7 +199,7 @@ export default class Frog extends Model {
             Globals.freeze = true;
             setTimeout(() => {
                 this.resetPosition(); // Reset position
-                Globals.freeze = false; // Reset the flagw
+                Globals.freeze = false; // Reset the flag
             }, 1000);
 
             // Take a timeout to prevent unwanted movement
