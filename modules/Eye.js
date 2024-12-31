@@ -53,4 +53,13 @@ export default class Eye {
         Globals.gl.uniform3fv(Globals.eyePositionUniform, this.#eyePosition);
         Globals.gl.uniform3fv(Globals.lightPositionUniform, this.#lightPosition);
     }
+
+    /**
+     * Resets the eye position.
+     */
+    resetPosition() {
+        this.#lastThree = [0, 0, 0];
+        vec3.set(this.#eyePosition, 6.5, 7.5, -1.5);
+        vec3.set(this.#lookAtPoint, 6.5, 0, 1.5);
+    }
 }

@@ -182,10 +182,15 @@ export default class Model {
     
         // Create a new image and load it into texture
         let image = new Image();
+        Globals.loadingArray.push(false); // Push a value into the loading array
+        let loadingIndex = Globals.loadingArray.length - 1; // Keep the index for later
         image.onload = () => {
             Globals.gl.bindTexture(Globals.gl.TEXTURE_2D, texture);
             Globals.gl.texImage2D(Globals.gl.TEXTURE_2D, 0, Globals.gl.RGBA, Globals.gl.RGBA, Globals.gl.UNSIGNED_BYTE, image);
             Globals.gl.generateMipmap(Globals.gl.TEXTURE_2D);
+
+            // Once loaded, set to true
+            Globals.loadingArray[loadingIndex] = true;
         };
     
         // Set up cross-origin access

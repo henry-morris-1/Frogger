@@ -27,7 +27,6 @@ const frameDuration = 1000 / frameRate;
 let prev, curr;
 
 /** Game state variables */
-let loading = true;
 let pause = false;
 let cursorHidden = false;
 let gameOver = false;
@@ -248,9 +247,24 @@ function setupShaders() {
 }
 
 /**
- * TODO: adds event listeners for player controls
+ * Adds event listeners for player controls.
  */
 function setupListeners() {
+    /**
+     * Function to call whenever the game is being reset
+     */
+    function resetEvent() {
+        // Freeze the game, wait 100 milliseconds, then reset it to ensure everything loads in sync
+        document.getElementById("pauseScreen").style.display = "none";
+        document.getElementById("endScreen").style.display = "none";
+        document.getElementById("loadingScreen").style.display = "block"; // Display the loading dialogue
+        Globals.freeze = true; // Freeze the game
+        setTimeout(() => {
+            Globals.loading = true;
+            resetGame();
+        }, 10); // Wait and reset
+    }
+
     window.addEventListener("keydown", (k) => {
         switch (k.code) {
             case "KeyW":
@@ -298,23 +312,66 @@ function setupListeners() {
                 break;
             
             case "KeyR":
-                // Freeze the game, wait 100 milliseconds, then reset it to ensure everything loads in sync
-                document.getElementById("pauseScreen").style.display = "none";
-                document.getElementById("endScreen").style.display = "none";
-                document.getElementById("loadingScreen").style.display = "block"; // Display the loading dialogue
-                Globals.freeze = true; // Freeze the game
-                setTimeout(resetGame, 100); // Wait and reset
+                resetEvent();
                 break;
         }
     });
 
+    // Listen for clicks on reset buttons
+    document.querySelectorAll(".reset").forEach(button => { button.addEventListener("click", resetEvent) });
+
     // Listen for mouse movements to reveal the cursor if it was hidden
-    addEventListener("mousemove", () => {
+    window.addEventListener("mousemove", () => {
         if (cursorHidden) {
             document.body.style.cursor = "default";
             cursorHidden = false;
         }
     });
+}
+
+/**
+ * Reloads models and resets the game state.
+ */
+function resetGame() {
+    // Delete buffers and textures
+    for (let i = 0; i < Globals.modelSetCount; i++) {
+        Globals.gl.deleteBuffer(Globals.vertexBuffers[i]);
+        Globals.gl.deleteBuffer(Globals.triangleBuffers[i]);
+        Globals.gl.deleteBuffer(Globals.normalBuffers[i]);
+        Globals.gl.deleteBuffer(Globals.ambientBuffers[i]);
+        Globals.gl.deleteBuffer(Globals.specularBuffers[i]);
+        Globals.gl.deleteBuffer(Globals.uvBuffers[i]);
+        Globals.gl.deleteTexture(Globals.textureBuffers[i]);
+    }
+
+    // Reset buffers and model variables to empty arrays / zero
+    Globals.vertexBuffers, Globals.normalBuffers, Globals.ambientBuffers, Globals.diffuseBuffers, 
+    Globals.specularBuffers, Globals.reflectivityBuffers, Globals.alphaBuffers, Globals.textureBuffers, 
+    Globals.uvBuffers, Globals.triangleBuffers, Globals.triangleBufferSizes = [];
+    Globals.modelSetCount = 0;
+
+    // Delete model arrays
+    Globals.surface, Globals.frog = undefined;
+    Globals.dummyFrogs, Globals.logs, Globals.cars, Globals.turtles = [];
+
+    // Load models and textures into the WebGL buffers
+    setupModels();
+
+    // Request the next frame to start the game again
+    requestAnimationFrame(renderModels);
+
+    // Reset the game state
+    Globals.timeout = false, Globals.freeze = false, pause = false, gameOver = false, win = false;
+    Globals.lives = 3;
+    Globals.home = [false, false, false, false, false];
+    Globals.homeCount = 0;
+    Globals.floatCycle = 75;
+    Globals.eye.resetPosition();
+    Globals.frog.resetPosition();
+
+    // Reset the score panel
+    document.getElementById("score").innerHTML = "Lily Pads: " + Globals.homeCount;
+    document.getElementById("lives").innerHTML = "Lives: " + Globals.lives;
 }
 
 /**
@@ -419,9 +476,15 @@ function renderModels(timestamp) {
     }
 
     // If the program was loading, we can now hide the screen and set the flag to false
-    if (loading) {
-        document.getElementById("loadingScreen").style.display = "none";
-        loading = false;
+    if (Globals.loading) {
+        // Rudimentary function to check if each value is true
+        const checker = arr => arr.every(Boolean);
+
+        // If each texture has loaded, set loading to false and hide the loading screen
+        if (checker(Globals.loadingArray)) {
+            Globals.loading = false;
+            document.getElementById("loadingScreen").style.display = "none";
+        }
     }
 
     // Check if the game is over and if the user won

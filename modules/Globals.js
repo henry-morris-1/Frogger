@@ -59,10 +59,12 @@ const Globals = {
     frog: undefined,                // Player model
 
     /** Game state */
+    loadingArray: [],                           // Array of loading flags
+    loading: true,                              // Boolean flag for the loading state
+    timeout: false,                             // Timeout to prevent movement after a score or life lost
+    freeze: false,                              // Freeze the game after a death
     home: [false, false, false, false, false],  // Boolean flags for each home
     homeCount: 0,                               // How many homes have been reached
     lives: 3,                                   // Number of lives remaining
-    timeout: false,                             // Timeout to prevent movement after a score or life lost
-    freeze: false,                              // Freeze the game after a death
 }
 export default Globals;
