@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <link rel="icon" href="data:,">
+        <title>Frogger</title>
+        <link type="text/css" rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="https://use.typekit.net/ipz1rsb.css">
+        <script type="text/javascript" src="gl-matrix-min.js"></script>
+        <script type="module" src="rasterize.js"></script>
+    </head>
+
+    <body>
+        <canvas id="myWebGLCanvas"></canvas>
+
+        <h1 id="title">Frogger</h1>
+
+        <div id="scorePanel">
+            <h1 id="score">Lily Pads: 0</h1>
+            <h1 id="lives">Lives: 3</h1>
+        </div>
+
+        <div id="loadingScreen">
+            <div id="loadingBackground"></div>
+            <div id="loadingText">Loading...</div>
+        </div>
+
+        <div id ="pauseScreen" style="display:none">
+            <div id="pauseBackground"></div>
+            <div id="pauseText">
+                <h1>Paused</h1>
+                <h2 id="reset" onclick="document.getElementById(&quot;pauseScreen&quot;).style.display=&quot;none&quot;;document.getElementById(&quot;loadingScreen&quot;).style.display=&quot;block&quot;;freeze=true;setTimeout(resetGame,100);">Reset</h2>
+            </div>
+        </div>
+
+        <div id="endScreen" style="display:none">
+            <div id="endBackground"></div>
+            <div id="endText">
+                <h1 id="message"></h1>
+            <h2 id="reset" onclick="document.getElementById(&quot;endScreen&quot;).style.display=&quot;none&quot;;document.getElementById(&quot;loadingScreen&quot;).style.display=&quot;block&quot;;freeze=true;setTimeout(resetGame,100);">Reset</h2>
+            </div>
+        </div>
+    </body>
+</html>
