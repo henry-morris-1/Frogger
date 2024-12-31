@@ -80,18 +80,18 @@ export default class Log extends Model {
     /**
      * Updates the position of the log.
      */
-    updatePosition() {
+    updatePosition(deltaTime) {
         // Move the logs in their lanes
         // Calculate the direction to translate based on the lane and x-position
         switch (this.#lane) {
             case 1:
             case 3:
             case 5:
-                (Globals.modelCenters[this.#index][0] > 15) ? vec3.set(this.#direction, -17, 0, 0) : vec3.set(this.#direction, 0.035, 0, 0);
+                (Globals.modelCenters[this.#index][0] > 15) ? vec3.set(this.#direction, -17, 0, 0) : vec3.set(this.#direction, 0.0021 * deltaTime, 0, 0);
                 break;
             case 2:
             case 4:
-                (Globals.modelCenters[this.#index][0] < -2) ? vec3.set(this.#direction, 17, 0, 0) : vec3.set(this.#direction, -0.035, 0, 0);
+                (Globals.modelCenters[this.#index][0] < -2) ? vec3.set(this.#direction, 17, 0, 0) : vec3.set(this.#direction, -0.0021 * deltaTime, 0, 0);
                 break;
         }
 

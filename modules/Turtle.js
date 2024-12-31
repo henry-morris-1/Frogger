@@ -68,7 +68,7 @@ export default class Log extends Model {
         // Place the turtles in each lane
         // Start by getting a translation vector based on the lane the turtle is in
         if (lane === 1) {
-            vec3.set(this.#direction, offset + 9, -0.075, 7.5);
+            vec3.set(this.#direction, offset - 5, -0.075, 7.5);
         } else if (lane === 2) {
             vec3.set(this.#direction, offset + 9, -0.075, 10.5);
         }
@@ -81,7 +81,7 @@ export default class Log extends Model {
     /**
      * Updates the position of the turtle.
      */
-    updatePosition() {
+    updatePosition(deltaTime) {
         // Calculate the movement for floating using a cosine wave
         // Only move half the time
         //// Down -> up -> wait, repeat
@@ -89,9 +89,9 @@ export default class Log extends Model {
 
         // Move the frogs and float them up and down
         if (this.#lane === 1) {
-            (Globals.modelCenters[this.#index][0] > 13.15) ? vec3.set(this.#direction, -13.8, f, 0) : vec3.set(this.#direction, 0.02845, f, 0);
+            (Globals.modelCenters[this.#index][0] > 13.15) ? vec3.set(this.#direction, -13.8, f, 0) : vec3.set(this.#direction, 0.001707 * deltaTime, f, 0);
         } else {
-            (Globals.modelCenters[this.#index][0] < -0.65) ? vec3.set(this.#direction, 13.8, f, 0) : vec3.set(this.#direction, -0.02845, f, 0);
+            (Globals.modelCenters[this.#index][0] < -0.65) ? vec3.set(this.#direction, 13.8, f, 0) : vec3.set(this.#direction, -0.001707 * deltaTime, f, 0);
         }
 
         mat4.fromTranslation(Globals.translate, this.#direction); // Get the appropriate translation matrix

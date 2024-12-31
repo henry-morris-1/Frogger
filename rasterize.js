@@ -400,79 +400,78 @@ function userLose() {
  */
 function renderModels(timestamp) {
     // Get the current timestamp
+    prev = prev || timestamp;
     curr = timestamp;
+    let deltaTime = curr - prev || 0;
 
-    // If enough time has elapsed since the previous frame, render the next
-    if (prev === undefined || (curr - prev) >= frameDuration) {
-        // Update for the current frame
-        Globals.eye.updatePosition(); // Eye
-        Globals.cars.forEach(car => { car.updatePosition() }); // Cars
-        Globals.logs.forEach(log => { log.updatePosition() }); // Logs
-        Globals.turtles.forEach(turtle => { turtle.updatePosition() }); // Turtles
-        Globals.floatCycle = (Globals.floatCycle + 1) % 250; // Increment float cycle (250 steps = 1 cycle)
-        Globals.frog.updatePosition(); // Player model
+    // Update for the current frame
+    Globals.eye.updatePosition(); // Eye
+    Globals.cars.forEach(car => { car.updatePosition(deltaTime) }); // Cars
+    Globals.logs.forEach(log => { log.updatePosition(deltaTime) }); // Logs
+    Globals.turtles.forEach(turtle => { turtle.updatePosition(deltaTime) }); // Turtles
+    Globals.floatCycle = (Globals.floatCycle + (0.06 * deltaTime)) % 250; // Increment float cycle (250 steps = 1 cycle)
+    Globals.frog.updatePosition(deltaTime); // Player model
 
-        if (!Globals.freeze) {
-            Globals.frog.checkScore(); // Check for scoring
+    // Set prev to curr
+    prev = curr;
 
-            // Check collisions for losing a life
-            if (Globals.frog.checkCollision()) {
-                Globals.lives--; // Decrement lives
-                Globals.frog.deathReset(); // Reset player
-                window.setTimeout(() => { requestAnimationFrame(renderModels) }, 1000); // Set timeout to restart the animation
-                document.getElementById("lives").innerHTML = `Lives: ${Globals.lives}`; // Update scoreboard
-            }
+    if (!Globals.freeze) {
+        Globals.frog.checkScore(); // Check for scoring
+
+        // Check collisions for losing a life
+        if (Globals.frog.checkCollision()) {
+            Globals.lives--; // Decrement lives
+            Globals.frog.deathReset(); // Reset player
+            window.setTimeout(() => { requestAnimationFrame(renderModels) }, 1000); // Set timeout to restart the animation
+            document.getElementById("lives").innerHTML = `Lives: ${Globals.lives}`; // Update scoreboard
         }
+    }
 
-        // Clear frame/depth buffers
-        Globals.gl.clear(Globals.gl.COLOR_BUFFER_BIT | Globals.gl.DEPTH_BUFFER_BIT);
+    // Clear frame/depth buffers
+    Globals.gl.clear(Globals.gl.COLOR_BUFFER_BIT | Globals.gl.DEPTH_BUFFER_BIT);
 
-        // Render each model
-        for (let i = 0; i < Globals.modelSetCount; i++) {
-            // Set up the model and normal matrices
-            // These are unique to each triangle set
-            Globals.gl.uniformMatrix4fv(modelMatrixUniform, false, Globals.modelMatrices[i]);
-            mat3.normalFromMat4(Globals.normalMatrix, mat4.multiply(mat4.create(), Globals.viewMatrix, Globals.modelMatrices[i]));
-            Globals.gl.uniformMatrix3fv(normalMatrixUniform, false, Globals.normalMatrix);
+    // Render each model
+    for (let i = 0; i < Globals.modelSetCount; i++) {
+        // Set up the model and normal matrices
+        // These are unique to each triangle set
+        Globals.gl.uniformMatrix4fv(modelMatrixUniform, false, Globals.modelMatrices[i]);
+        mat3.normalFromMat4(Globals.normalMatrix, mat4.multiply(mat4.create(), Globals.viewMatrix, Globals.modelMatrices[i]));
+        Globals.gl.uniformMatrix3fv(normalMatrixUniform, false, Globals.normalMatrix);
 
-            // Vertex position buffer
-            Globals.gl.bindBuffer(Globals.gl.ARRAY_BUFFER, Globals.vertexBuffers[i]);
-            Globals.gl.vertexAttribPointer(vertexPositionAttrib, 3, Globals.gl.FLOAT, false, 0, 0);
+        // Vertex position buffer
+        Globals.gl.bindBuffer(Globals.gl.ARRAY_BUFFER, Globals.vertexBuffers[i]);
+        Globals.gl.vertexAttribPointer(vertexPositionAttrib, 3, Globals.gl.FLOAT, false, 0, 0);
 
-            // Vertex normal buffer
-            Globals.gl.bindBuffer(Globals.gl.ARRAY_BUFFER, Globals.normalBuffers[i]);
-            Globals.gl.vertexAttribPointer(vertexNormalAttrib, 3, Globals.gl.FLOAT, false, 0, 0);
+        // Vertex normal buffer
+        Globals.gl.bindBuffer(Globals.gl.ARRAY_BUFFER, Globals.normalBuffers[i]);
+        Globals.gl.vertexAttribPointer(vertexNormalAttrib, 3, Globals.gl.FLOAT, false, 0, 0);
 
-            // Color buffers
-            // Ambient
-            Globals.gl.bindBuffer(Globals.gl.ARRAY_BUFFER, Globals.ambientBuffers[i]);
-            Globals.gl.vertexAttribPointer(vertexAmbientAttrib, 3, Globals.gl.FLOAT, false, 0, 0);
-            // Diffuse
-            Globals.gl.bindBuffer(Globals.gl.ARRAY_BUFFER, Globals.diffuseBuffers[i]);
-            Globals.gl.vertexAttribPointer(vertexDiffuseAttrib, 3, Globals.gl.FLOAT, false, 0, 0);
-            // Specular
-            Globals.gl.bindBuffer(Globals.gl.ARRAY_BUFFER, Globals.specularBuffers[i]);
-            Globals.gl.vertexAttribPointer(vertexSpecularAttrib, 3, Globals.gl.FLOAT, false, 0, 0);
-            // Reflectivity
-            Globals.gl.uniform1f(reflectivityUniform, Globals.reflectivityBuffers[i]);
-            // Alpha
-            Globals.gl.uniform1f(alphaUniform, Globals.alphaBuffers[i]);
+        // Color buffers
+        // Ambient
+        Globals.gl.bindBuffer(Globals.gl.ARRAY_BUFFER, Globals.ambientBuffers[i]);
+        Globals.gl.vertexAttribPointer(vertexAmbientAttrib, 3, Globals.gl.FLOAT, false, 0, 0);
+        // Diffuse
+        Globals.gl.bindBuffer(Globals.gl.ARRAY_BUFFER, Globals.diffuseBuffers[i]);
+        Globals.gl.vertexAttribPointer(vertexDiffuseAttrib, 3, Globals.gl.FLOAT, false, 0, 0);
+        // Specular
+        Globals.gl.bindBuffer(Globals.gl.ARRAY_BUFFER, Globals.specularBuffers[i]);
+        Globals.gl.vertexAttribPointer(vertexSpecularAttrib, 3, Globals.gl.FLOAT, false, 0, 0);
+        // Reflectivity
+        Globals.gl.uniform1f(reflectivityUniform, Globals.reflectivityBuffers[i]);
+        // Alpha
+        Globals.gl.uniform1f(alphaUniform, Globals.alphaBuffers[i]);
 
-            // Textures
-            // uvs
-            Globals.gl.bindBuffer(Globals.gl.ARRAY_BUFFER, Globals.uvBuffers[i]);
-            Globals.gl.vertexAttribPointer(vertexUVAttrib, 2, Globals.gl.FLOAT, false, 0, 0);
-            // Texture objects
-            Globals.gl.bindTexture(Globals.gl.TEXTURE_2D, Globals.textureBuffers[i]);
-            Globals.gl.uniform1i(textureUniform, 0);
+        // Textures
+        // uvs
+        Globals.gl.bindBuffer(Globals.gl.ARRAY_BUFFER, Globals.uvBuffers[i]);
+        Globals.gl.vertexAttribPointer(vertexUVAttrib, 2, Globals.gl.FLOAT, false, 0, 0);
+        // Texture objects
+        Globals.gl.bindTexture(Globals.gl.TEXTURE_2D, Globals.textureBuffers[i]);
+        Globals.gl.uniform1i(textureUniform, 0);
 
-            // Triangle buffer
-            Globals.gl.bindBuffer(Globals.gl.ELEMENT_ARRAY_BUFFER, Globals.triangleBuffers[i]);
-            Globals.gl.drawElements(Globals.gl.TRIANGLES, Globals.triangleBufferSizes[i], Globals.gl.UNSIGNED_SHORT, 0);
-        }
-
-        // Set a new previous timestamp
-        prev = curr;
+        // Triangle buffer
+        Globals.gl.bindBuffer(Globals.gl.ELEMENT_ARRAY_BUFFER, Globals.triangleBuffers[i]);
+        Globals.gl.drawElements(Globals.gl.TRIANGLES, Globals.triangleBufferSizes[i], Globals.gl.UNSIGNED_SHORT, 0);
     }
 
     // If the program was loading, we can now hide the screen and set the flag to false

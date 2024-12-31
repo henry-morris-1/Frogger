@@ -107,24 +107,25 @@ export default class Car extends Model {
 
     /**
      * Updates the position of the car.
+     * @param {Number} deltaTime Number of ms since the last frame
      */
-    updatePosition() {
+    updatePosition(deltaTime) {
         // Get the direction vector based on the lane and whether it has reached the edge yet
         switch (this.#lane) {
             case 1:
-                (Globals.modelCenters[this.#index][0] < -0.5) ? vec3.set(this.#direction, 14, 0, 0) : vec3.set(this.#direction, -0.025, 0, 0);
+                (Globals.modelCenters[this.#index][0] < -0.5) ? vec3.set(this.#direction, 14, 0, 0) : vec3.set(this.#direction, -0.0015 * deltaTime, 0, 0);
                 break;
             case 2:
-                (Globals.modelCenters[this.#index][0] > 13.5) ? vec3.set(this.#direction, -14, 0, 0) : vec3.set(this.#direction, 0.05, 0, 0);
+                (Globals.modelCenters[this.#index][0] > 13.5) ? vec3.set(this.#direction, -14, 0, 0) : vec3.set(this.#direction, 0.003 * deltaTime, 0, 0);
                 break;
             case 3:
-                (Globals.modelCenters[this.#index][0] < -0.5) ? vec3.set(this.#direction, 14, 0, 0) : vec3.set(this.#direction, -0.15, 0, 0);
+                (Globals.modelCenters[this.#index][0] < -0.5) ? vec3.set(this.#direction, 14, 0, 0) : vec3.set(this.#direction, -0.009 * deltaTime, 0, 0);
                 break;
             case 4:
-                (Globals.modelCenters[this.#index][0] > 13.5) ? vec3.set(this.#direction, -14, 0, 0) : vec3.set(this.#direction, 0.075, 0, 0);
+                (Globals.modelCenters[this.#index][0] > 13.5) ? vec3.set(this.#direction, -14, 0, 0) : vec3.set(this.#direction, 0.0045 * deltaTime, 0, 0);
                 break;
             case 5:
-                (Globals.modelCenters[this.#index][0] < -0.5) ? vec3.set(this.#direction, 14, 0, 0) : vec3.set(this.#direction, -0.025, 0, 0);
+                (Globals.modelCenters[this.#index][0] < -0.5) ? vec3.set(this.#direction, 14, 0, 0) : vec3.set(this.#direction, -0.0015 * deltaTime, 0, 0);
                 break;
         }
 

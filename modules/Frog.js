@@ -110,7 +110,7 @@ export default class Frog extends Model {
      * to move the model to the target with tension and a friction force acting against it.
      * @return velocity vector for the player
      */
-    getPlayerSpeedAndDirection() {
+    getPlayerSpeedAndDirection(deltaTime) {
         // Get the direction to the target
         vec3.set(this.#direction, this.#target[0] - Globals.modelCenters[this.#index][0], 0, this.#target[2] - Globals.modelCenters[this.#index][2]);
 
@@ -127,6 +127,9 @@ export default class Frog extends Model {
         vec3.add(this.#acceleration, this.#springForce, this.#frictionForce);
         vec3.add(this.#velocity, this.#velocity, this.#acceleration);
 
+        // Scale based on the deltaTime
+        vec3.scale(this.#velocity, this.#velocity, 0.06 * deltaTime);
+
         // Return velocity
         return this.#velocity;
     }
@@ -134,12 +137,13 @@ export default class Frog extends Model {
     /**
      * Updates the position of the player model.
      */
-    updatePosition() {
-        mat4.fromTranslation(Globals.translate, this.#drift);
-        vec3.transformMat4(this.#target, this.#target, Globals.translate);
+    updatePosition(deltaTime) {
+        vec3.scale(this.#drift, this.#drift, deltaTime); // Scale the drift
+        mat4.fromTranslation(Globals.translate, this.#drift); // Get the translation matrix
+        vec3.transformMat4(this.#target, this.#target, Globals.translate); // Translate the target
 
         // Player movement
-        mat4.fromTranslation(Globals.translate, this.getPlayerSpeedAndDirection()); // Get the appropriate translation matrix
+        mat4.fromTranslation(Globals.translate, this.getPlayerSpeedAndDirection(deltaTime)); // Get the appropriate translation matrix
         mat4.multiply(Globals.modelMatrices[this.#index], Globals.translate, Globals.modelMatrices[this.#index]); // Translate model matrix
         vec3.transformMat4(Globals.modelCenters[this.#index], Globals.modelCenters[this.#index], Globals.translate); // Translate center
     }
@@ -294,7 +298,7 @@ export default class Frog extends Model {
                 if (left && right && top && bottom) {
                     // Set the drift to the motion of the log
                     let sign = 2 * (Math.floor(logBounds.zMin) % 2) - 1; // Get the +/- sign for the drift direction
-                    vec3.set(this.#drift, sign * 0.035, 0, 0);
+                    vec3.set(this.#drift, sign * 0.0021, 0, 0);
 
                     return false;
                 }
@@ -331,7 +335,7 @@ export default class Frog extends Model {
                 if (turtle.aboveWater && left && right && top && bottom) {
                     // Set the drift to the motion of the log
                     let sign = 2 * (Math.floor(turtleBounds.zMin) % 2) - 1; // Get the +/- sign for the drift direction
-                    vec3.set(this.#drift, sign * 0.02845, 0, 0);
+                    vec3.set(this.#drift, sign * 0.001707, 0, 0);
 
                     return false;
                 }
@@ -354,7 +358,8 @@ export default class Frog extends Model {
         // Find which obstacles might be in the way to check collisions
         if (currRow > 0.75 && currRow < 6.25) {
             vec3.set(this.#drift, 0, 0, 0);
-            return this.checkCarCollision(currRow);
+            // return this.checkCarCollision(currRow);
+            return false;
         } else if (currRow > 7 && currRow < 12) {
             return this.checkBoundaryCollision() || (this.checkLogCollision(currRow) && this.checkTurtleCollision(currRow));
         } else {
