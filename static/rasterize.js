@@ -327,7 +327,7 @@ function setupListeners() {
 
     // Pause when the tab is switched
     document.addEventListener("visibilitychange", () => {
-        document.hidden && pauseEvent();
+        !pause && document.hidden && pauseEvent();
     });
 
     // Listen for clicks on reset buttons
