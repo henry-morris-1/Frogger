@@ -85,7 +85,7 @@ export default class Log extends Model {
         // Calculate the movement for floating using a cosine wave
         // Only move half the time
         //// Down -> up -> wait, repeat
-        let f = (Globals.floatCycle > 31 && Globals.floatCycle < 156) ? 0 : 0.00625 * Math.cos(4 * Math.PI * Globals.floatCycle / 250);
+        let f = (Globals.floatCycle > 31.25 && Globals.floatCycle < 156.25) ? 0 : 0.00625 * Math.cos(4 * Math.PI * Globals.floatCycle / 250);
 
         // Move the frogs and float them up and down
         if (this.#lane === 1) {

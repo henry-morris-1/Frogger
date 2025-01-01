@@ -22,9 +22,8 @@ let alphaUniform; // Model alpha
 let textureUniform; // Model texture
 
 /** Frame rate variables */
-const frameRate = 60;
-const frameDuration = 1000 / frameRate;
 let prev, curr;
+let step;
 
 /** Game state variables */
 let pause = false;
@@ -273,12 +272,14 @@ function setupListeners() {
             if (pause) {
                 // Begin the game again
                 document.getElementById("pauseScreen").style.display = "none";
-                requestAnimationFrame(renderModels);
-                pause = false;
+                pause = false; // Lower the flag
+                window.requestAnimationFrame(renderModels); // Begin animating
             } else {
                 // Put up the pause screen
                 document.getElementById("pauseScreen").style.display = "block";
-                pause = true;
+                pause = true; // Raise the flag
+                window.cancelAnimationFrame(step); // Cancel the animation
+                curr = undefined, prev = undefined; // Reset timestamps
             }
         }
     }
@@ -324,6 +325,11 @@ function setupListeners() {
         }
     });
 
+    // Pause when the tab is switched
+    document.addEventListener("visibilitychange", () => {
+        document.hidden && pauseEvent();
+    });
+
     // Listen for clicks on reset buttons
     document.querySelectorAll(".reset").forEach(button => { button.addEventListener("click", resetEvent) });
 
@@ -365,7 +371,7 @@ function resetGame() {
     setupModels();
 
     // Request the next frame to start the game again
-    requestAnimationFrame(renderModels);
+    step = window.requestAnimationFrame(renderModels);
 
     // Reset the game state
     Globals.timeout = false, Globals.freeze = false, pause = false, gameOver = false, win = false;
@@ -406,10 +412,10 @@ function userLose() {
  * Renders the loaded model and adjusts the world for each frame.
  */
 function renderModels(timestamp) {
-    // Get the current timestamp
-    prev = prev || timestamp;
+    // Update timestamps and get the time since the last frame was drawn
     curr = timestamp;
     let deltaTime = curr - prev || 0;
+    prev = curr;
 
     // Update for the current frame
     Globals.eye.updatePosition(); // Eye
@@ -418,9 +424,7 @@ function renderModels(timestamp) {
     Globals.turtles.forEach(turtle => { turtle.updatePosition(deltaTime) }); // Turtles
     Globals.floatCycle = (Globals.floatCycle + (0.06 * deltaTime)) % 250; // Increment float cycle (250 steps = 1 cycle)
     Globals.frog.updatePosition(deltaTime); // Player model
-
-    // Set prev to curr
-    prev = curr;
+    
 
     if (!Globals.freeze) {
         Globals.frog.checkScore(); // Check for scoring
@@ -429,7 +433,9 @@ function renderModels(timestamp) {
         if (Globals.frog.checkCollision()) {
             Globals.lives--; // Decrement lives
             Globals.frog.deathReset(); // Reset player
-            window.setTimeout(() => { requestAnimationFrame(renderModels) }, 1000); // Set timeout to restart the animation
+            curr = undefined, prev = undefined; // Reset timestamps
+
+            window.setTimeout(() => { step = window.requestAnimationFrame(renderModels) }, 1000); // Set timeout to restart the animation
             document.getElementById("lives").innerHTML = `Lives: ${Globals.lives}`; // Update scoreboard
         }
     }
@@ -502,9 +508,9 @@ function renderModels(timestamp) {
         // If the game is over, let the user know if they won or lost
         win ? userWin() : userLose();
 
-    } else if (!pause && !Globals.freeze) {
+    } else if (!Globals.freeze) {
         // If the game is paused, don't request the next frame
-        requestAnimationFrame(renderModels);
+        step = window.requestAnimationFrame(renderModels);
     }
 }
 

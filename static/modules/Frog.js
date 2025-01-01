@@ -208,6 +208,8 @@ export default class Frog extends Model {
         // they remain in place while frozen
         if (Globals.lives > 0) {
             Globals.freeze = true;
+            
+
             setTimeout(() => {
                 this.resetPosition(); // Reset position
                 Globals.freeze = false; // Reset the flag
