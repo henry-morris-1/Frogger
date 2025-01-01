@@ -203,21 +203,11 @@ export default class Frog extends Model {
      * Resets the frog after a death.
      */
     deathReset() {
-        // Take a timeout to freeze the program on the frame where the user died
-        // The user will be translated back to the start point in this function so
-        // they remain in place while frozen
+        // Reset position if the player still has lives remaining
         if (Globals.lives > 0) {
-            Globals.freeze = true;
-            
-
             setTimeout(() => {
-                this.resetPosition(); // Reset position
-                Globals.freeze = false; // Reset the flag
+                this.resetPosition();
             }, 1000);
-
-            // Take a timeout to prevent unwanted movement
-            Globals.timeout = true;
-            setTimeout(() => { Globals.timeout = false }, 1500);
         }
     }
 

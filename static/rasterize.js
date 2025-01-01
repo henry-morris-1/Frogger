@@ -381,6 +381,7 @@ function resetGame() {
     Globals.floatCycle = 75;
     Globals.eye.resetPosition();
     Globals.frog.resetPosition();
+    curr = undefined, prev = undefined;
 
     // Reset the score panel
     document.getElementById("score").innerHTML = "Lily Pads: " + Globals.homeCount;
@@ -431,9 +432,17 @@ function renderModels(timestamp) {
 
         // Check collisions for losing a life
         if (Globals.frog.checkCollision()) {
-            Globals.lives--; // Decrement lives
-            Globals.frog.deathReset(); // Reset player
+            !gameOver && Globals.lives--; // Decrement lives
+
+            // Freeze the game for a second on the death frame, then lock player movement
+            // for an additional half second
+            Globals.freeze = true;
+            setTimeout(() => { Globals.freeze = false }, 1000);
+            Globals.timeout = true;
+            setTimeout(() => { Globals.timeout = false }, 1500);
             curr = undefined, prev = undefined; // Reset timestamps
+
+            Globals.frog.deathReset(); // Reset player
 
             window.setTimeout(() => { step = window.requestAnimationFrame(renderModels) }, 1000); // Set timeout to restart the animation
             document.getElementById("lives").innerHTML = `Lives: ${Globals.lives}`; // Update scoreboard
