@@ -377,19 +377,19 @@ export default class Frog extends Model {
             // Players don't have to be exactly lined up, but make sure they get put in the middle of the lily pad
             if (Globals.modelCenters[this.#index][0] > 2.25 && Globals.modelCenters[this.#index][0] < 2.75 && !Globals.home[0]) {
                 Globals.home[0] = true;
-                vec3.set(this.#target, 2.5, 0.25, 12.5);
+                vec3.set(this.#target, 2.3, 0.25, 12.5);
             } else if (Globals.modelCenters[this.#index][0] > 4.25 && Globals.modelCenters[this.#index][0] < 4.75 && !Globals.home[1]) {
                 Globals.home[1] = true;
-                vec3.set(this.#target, 4.5, 0.25, 12.5);
+                vec3.set(this.#target, 4.3, 0.25, 12.5);
             } else if (Globals.modelCenters[this.#index][0] > 6.25 && Globals.modelCenters[this.#index][0] < 6.75 && !Globals.home[2]) {
                 Globals.home[2] = true;
-                vec3.set(this.#target, 6.5, 0.25, 12.5);
+                vec3.set(this.#target, 6.3, 0.25, 12.5);
             } else if (Globals.modelCenters[this.#index][0] > 8.25 && Globals.modelCenters[this.#index][0] < 8.75 && !Globals.home[3]) {
                 Globals.home[3] = true;
-                vec3.set(this.#target, 8.5, 0.25, 12.5);
+                vec3.set(this.#target, 8.3, 0.25, 12.5);
             } else if (Globals.modelCenters[this.#index][0] > 10.25 && Globals.modelCenters[this.#index][0] < 10.75 && !Globals.home[4]) {
                 Globals.home[4] = true;
-                vec3.set(this.#target, 10.5, 0.25, 12.5);
+                vec3.set(this.#target, 10.3, 0.25, 12.5);
             }
         }
 
