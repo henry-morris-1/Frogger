@@ -265,6 +265,24 @@ function setupListeners() {
         }, 10); // Wait and reset
     }
 
+    /**
+     * Function to call whenever pause is toggled
+     */
+    function pauseEvent() {
+        if (!gameOver) {
+            if (pause) {
+                // Begin the game again
+                document.getElementById("pauseScreen").style.display = "none";
+                requestAnimationFrame(renderModels);
+                pause = false;
+            } else {
+                // Put up the pause screen
+                document.getElementById("pauseScreen").style.display = "block";
+                pause = true;
+            }
+        }
+    }
+
     window.addEventListener("keydown", (k) => {
         switch (k.code) {
             case "KeyW":
@@ -297,18 +315,7 @@ function setupListeners() {
 
             case "Escape":
                 // Only pause if the game is active
-                if (!gameOver) {
-                    if (pause) {
-                        // Begin the game again
-                        document.getElementById("pauseScreen").style.display = "none";
-                        requestAnimationFrame(renderModels);
-                        pause = false;
-                    } else {
-                        // Put up the pause screen
-                        document.getElementById("pauseScreen").style.display = "block";
-                        pause = true;
-                    }
-                }
+                pauseEvent();
                 break;
             
             case "KeyR":

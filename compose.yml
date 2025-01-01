@@ -1,0 +1,14 @@
+services:
+  proxy:
+    image: nginx:latest
+    restart: unless-stopped
+    volumes:
+      - ./proxy/default.conf.template:/etc/nginx/templates/default.conf.template
+    ports:
+      - "80:80"
+
+  frontend:
+    build: ./
+    restart: unless-stopped
+    volumes:
+     - ./src:/app/src
