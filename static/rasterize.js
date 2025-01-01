@@ -352,14 +352,14 @@ function resetGame() {
     }
 
     // Reset buffers and model variables to empty arrays / zero
-    Globals.vertexBuffers, Globals.normalBuffers, Globals.ambientBuffers, Globals.diffuseBuffers, 
-    Globals.specularBuffers, Globals.reflectivityBuffers, Globals.alphaBuffers, Globals.textureBuffers, 
-    Globals.uvBuffers, Globals.triangleBuffers, Globals.triangleBufferSizes = [];
+    Globals.vertexBuffers = [], Globals.normalBuffers = [], Globals.ambientBuffers = [], Globals.diffuseBuffers = [], 
+    Globals.specularBuffers = [], Globals.reflectivityBuffers = [], Globals.alphaBuffers = [], Globals.textureBuffers = [], 
+    Globals.uvBuffers = [], Globals.triangleBuffers = [], Globals.triangleBufferSizes = [];
     Globals.modelSetCount = 0;
 
     // Delete model arrays
-    Globals.surface, Globals.frog = undefined;
-    Globals.dummyFrogs, Globals.logs, Globals.cars, Globals.turtles = [];
+    Globals.surface = undefined, Globals.frog = undefined;
+    Globals.dummyFrogs = [], Globals.logs = [], Globals.cars = [], Globals.turtles = [];
 
     // Load models and textures into the WebGL buffers
     setupModels();
