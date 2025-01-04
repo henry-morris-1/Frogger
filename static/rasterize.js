@@ -38,20 +38,9 @@ let win = false;
 function setupWebGL() {
     // Create a canvas, set its width and heigh to fill the screen, and get the aspect ratio
     Globals.canvas = document.getElementById("myWebGLCanvas");
-    Globals.canvas.width = 1.25 * window.innerWidth;
-    Globals.canvas.height = 1.25 * window.innerHeight;
+    Globals.canvas.width = 1.333 * Math.min(window.innerWidth, window.innerHeight);
+    Globals.canvas.height = Math.min(window.innerWidth, window.innerHeight);
     Globals.aspectRatio = Math.max(4/3, Globals.canvas.width / Math.max(1, Globals.canvas.height)); // Smallest ratio allowed is 4:3
-
-    // let vpWidth, vpHeight;
-    // if (window.innerWidth > window.innerHeight) {
-    //     // Landscape
-    //     vpWidth = 1.25 * window.innerHeight;
-    //     vpHeight = window.innerHeight;
-    // } else {
-    //     // Portrait
-    //     vpWidth = window.innerWidth;
-    //     vpHeight = 0.75 * window.innerWidth;
-    // }
 
     // Get a WebGL object from the main canvas
     Globals.gl = Globals.canvas.getContext("webgl");
