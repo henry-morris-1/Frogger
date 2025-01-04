@@ -42,6 +42,17 @@ function setupWebGL() {
     Globals.canvas.height = 1.25 * window.innerHeight;
     Globals.aspectRatio = Math.max(4/3, Globals.canvas.width / Math.max(1, Globals.canvas.height)); // Smallest ratio allowed is 4:3
 
+    // let vpWidth, vpHeight;
+    // if (window.innerWidth > window.innerHeight) {
+    //     // Landscape
+    //     vpWidth = 1.25 * window.innerHeight;
+    //     vpHeight = window.innerHeight;
+    // } else {
+    //     // Portrait
+    //     vpWidth = window.innerWidth;
+    //     vpHeight = 0.75 * window.innerWidth;
+    // }
+
     // Get a WebGL object from the main canvas
     Globals.gl = Globals.canvas.getContext("webgl");
 
@@ -256,7 +267,7 @@ function setupListeners() {
         // Freeze the game, wait 100 milliseconds, then reset it to ensure everything loads in sync
         document.getElementById("pauseScreen").style.display = "none";
         document.getElementById("endScreen").style.display = "none";
-        document.getElementById("loadingScreen").style.display = "block"; // Display the loading dialogue
+        document.getElementById("loadingScreen").style.display = "flex"; // Display the loading dialogue
         Globals.freeze = true; // Freeze the game
         setTimeout(() => {
             Globals.loading = true;
@@ -276,7 +287,7 @@ function setupListeners() {
                 window.requestAnimationFrame(renderModels); // Begin animating
             } else {
                 // Put up the pause screen
-                document.getElementById("pauseScreen").style.display = "block";
+                document.getElementById("pauseScreen").style.display = "flex";
                 pause = true; // Raise the flag
                 window.cancelAnimationFrame(step); // Cancel the animation
                 curr = undefined, prev = undefined; // Reset timestamps
@@ -340,6 +351,14 @@ function setupListeners() {
             cursorHidden = false;
         }
     });
+
+    // // Resize
+    // window.addEventListener("resize", () => {
+    //     Globals.canvas.width = 1.25 * window.innerWidth;
+    //     Globals.canvas.height = 1.25 * window.innerHeight;
+    //     Globals.aspectRatio = Math.max(4/3, Globals.canvas.width / Math.max(1, Globals.canvas.height)); // Smallest ratio allowed is 4:3
+    //     Globals.gl.viewport(0, 0, Globals.canvas.width, Globals.canvas.height); // Set the viewport to the canvas size
+    // });
 }
 
 /**
@@ -394,7 +413,7 @@ function resetGame() {
 function userWin() {
     // Reveal the "you win" message
     document.getElementById("message").innerHTML = "YOU WIN!";
-    document.getElementById("endScreen").style.display = "block";
+    document.getElementById("endScreen").style.display = "flex";
 }
 
 /**
@@ -406,7 +425,7 @@ function userLose() {
 
     // Reveal the "game over" message
     document.getElementById("message").innerHTML = "GAME OVER";
-    document.getElementById("endScreen").style.display = "block";
+    document.getElementById("endScreen").style.display = "flex";
 }
 
 /**
