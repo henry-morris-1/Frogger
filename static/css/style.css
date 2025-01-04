@@ -94,6 +94,7 @@ html, body {
         }
 
         h2 {
+            margin-top: 18px;
             font-size: 48px;
             cursor: pointer;
         }
