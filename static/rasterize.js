@@ -268,7 +268,8 @@ function setupListeners() {
      * Function to call whenever pause is toggled
      */
     function pauseEvent() {
-        if (!gameOver) {
+        // Only pause if the game is active
+        if (!gameOver && !Globals.loading) {
             if (pause) {
                 // Begin the game again
                 document.getElementById("pauseScreen").style.display = "none";
@@ -315,7 +316,6 @@ function setupListeners() {
                 break;
 
             case "Escape":
-                // Only pause if the game is active
                 pauseEvent();
                 break;
             
@@ -340,14 +340,6 @@ function setupListeners() {
             cursorHidden = false;
         }
     });
-
-    // // Resize
-    // window.addEventListener("resize", () => {
-    //     Globals.canvas.width = 1.25 * window.innerWidth;
-    //     Globals.canvas.height = 1.25 * window.innerHeight;
-    //     Globals.aspectRatio = Math.max(4/3, Globals.canvas.width / Math.max(1, Globals.canvas.height)); // Smallest ratio allowed is 4:3
-    //     Globals.gl.viewport(0, 0, Globals.canvas.width, Globals.canvas.height); // Set the viewport to the canvas size
-    // });
 }
 
 /**
