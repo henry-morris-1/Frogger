@@ -274,11 +274,12 @@ function setupListeners() {
                 // Begin the game again
                 document.getElementById("pauseScreen").style.display = "none";
                 pause = false; // Lower the flag
-                window.requestAnimationFrame(renderModels); // Begin animating
+                step = window.requestAnimationFrame(renderModels); // Begin animating
             } else {
                 // Put up the pause screen
                 document.getElementById("pauseScreen").style.display = "flex";
                 pause = true; // Raise the flag
+                console.log(step);
                 window.cancelAnimationFrame(step); // Cancel the animation
                 curr = undefined, prev = undefined; // Reset timestamps
             }
@@ -370,9 +371,6 @@ function resetGame() {
     // Load models and textures into the WebGL buffers
     setupModels();
 
-    // Request the next frame to start the game again
-    step = window.requestAnimationFrame(renderModels);
-
     // Reset the game state
     Globals.timeout = false, Globals.freeze = false, pause = false, gameOver = false, win = false;
     Globals.lives = 3;
@@ -381,11 +379,14 @@ function resetGame() {
     Globals.floatCycle = 75;
     Globals.eye.resetPosition();
     Globals.frog.resetPosition();
-    curr = undefined, prev = undefined;
+    curr = undefined, prev = undefined, step = undefined;
 
     // Reset the score panel
     document.getElementById("score").innerHTML = "Lily Pads: " + Globals.homeCount;
     document.getElementById("lives").innerHTML = "Lives: " + Globals.lives;
+
+    // Request the next frame to start the game again
+    step = window.requestAnimationFrame(renderModels);
 }
 
 /**
@@ -401,9 +402,6 @@ function userWin() {
  * Handles the user lose state.
  */
 function userLose() {
-    // Freeze after losing
-    Globals.freeze = true;
-
     // Reveal the "game over" message
     document.getElementById("message").innerHTML = "GAME OVER";
     document.getElementById("endScreen").style.display = "flex";
@@ -509,15 +507,15 @@ function renderModels(timestamp) {
     }
 
     // Check if the game is over and if the user won
-    gameOver = (Globals.homeCount === 5 || Globals.lives === 0) ? true : false;
     win = (Globals.homeCount === 5) ? true : false;
+    gameOver = (win || Globals.lives === 0) ? true : false;
 
     // Request the next frame unless paused/gameover
     if (gameOver) {
         // If the game is over, let the user know if they won or lost
         win ? userWin() : userLose();
 
-    } else if (!Globals.freeze) {
+    } else if (!Globals.freeze && !pause) {
         // If the game is paused, don't request the next frame
         step = window.requestAnimationFrame(renderModels);
     }
@@ -530,4 +528,4 @@ setupWebGL(); // Set up the WebGL environment
 setupModels(); // Load models and textures into the WebGL buffers
 setupShaders(); // Set up the WebGL shaders
 setupListeners(); // Set up event listeners for player control
-renderModels(); // Draw the models using WebGL
+step = window.requestAnimationFrame(renderModels); // Draw the models using WebGL
