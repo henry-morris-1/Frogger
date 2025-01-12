@@ -85,7 +85,7 @@ export default class Log extends Model {
         // Calculate the movement for floating using a cosine wave
         // Only move half the time
         //// Down -> up -> wait, repeat
-        let f = (Globals.floatCycle > 31.25 && Globals.floatCycle < 156.25) ? 0 : 0.00625 * Math.cos(4 * Math.PI * Globals.floatCycle / 250);
+        let f = this.getY();
 
         // Move the frogs and float them up and down
         if (this.#lane === 1) {
@@ -97,5 +97,18 @@ export default class Log extends Model {
         mat4.fromTranslation(Globals.translate, this.#direction); // Get the appropriate translation matrix
         mat4.multiply(Globals.modelMatrices[this.#index], Globals.translate, Globals.modelMatrices[this.#index]); // Translate model matrix
         vec3.transformMat4(Globals.modelCenters[this.#index], Globals.modelCenters[this.#index], Globals.translate); // Translate center
+    }
+
+    /**
+     * Gets the component of the direction vector.
+     * @returns Direction vector y-component
+     */
+    getY() {
+        let fc = Globals.floatCycle / 250; // Adjust float cycle to between [0,1]
+        let target = (fc < 0.25) ? -0.25 : 0.075; // Get the y target based on the float cycle
+        let current = Globals.modelCenters[this.#index][1]; // Get the current y position
+
+        // 0.05 is the speed of descent/ascent
+        return 0.05 * (target - current);
     }
 }

@@ -279,7 +279,6 @@ function setupListeners() {
                 // Put up the pause screen
                 document.getElementById("pauseScreen").style.display = "flex";
                 pause = true; // Raise the flag
-                console.log(step);
                 window.cancelAnimationFrame(step); // Cancel the animation
                 curr = undefined, prev = undefined; // Reset timestamps
             }
