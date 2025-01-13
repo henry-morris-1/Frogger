@@ -511,4 +511,21 @@ export default class Frog extends Model {
             this.#facing = "right"; // Set the facing
         }
     }
+
+    checkExplosion() {
+        // Loop over each car
+        for (let i = 0; i < Globals.cars.length; i++) {
+            // Get the current car
+            let car = Globals.cars[i];
+            
+            // Get the vector between the current car and the player model
+            vec3.set(this.#direction, Globals.modelCenters[car.index][0] - Globals.modelCenters[this.#index][0], 0, Globals.modelCenters[car.index][2] - Globals.modelCenters[this.#index][2]);
+
+            // If the car is within 2 units of the player, make it disappear
+            if (vec3.length(this.#direction) < 3) {
+                // Animate the explosion
+                car.explode(vec3.fromValues(this.#direction[0], 1, this.#direction[2]), 0);
+            }
+        }
+    }
 }

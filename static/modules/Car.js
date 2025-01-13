@@ -5,6 +5,7 @@ export default class Car extends Model {
     #index;                      // Index of the car model
     #lane;                       // Lane in which this car drives
     #direction = vec3.create();  // Direction vector
+    #explosionSteps = 15;        // Number of frames for an explosion
 
     /**
      * Constructs a car with a random color in the given lane
@@ -28,6 +29,14 @@ export default class Car extends Model {
 
         // Transform the car
         this.transform(lane, offset);
+    }
+
+    /**
+     * Gets the model index of the car.
+     * @returns model index of the car
+     */
+    get index() {
+        return this.#index;
     }
 
     /**
@@ -132,5 +141,34 @@ export default class Car extends Model {
         mat4.fromTranslation(Globals.translate, this.#direction); // Get the appropriate translation matrix
         mat4.multiply(Globals.modelMatrices[this.#index], Globals.translate, Globals.modelMatrices[this.#index]); // Translate model matrix
         vec3.transformMat4(Globals.modelCenters[this.#index], Globals.modelCenters[this.#index], Globals.translate); // Translate center
+    }
+
+    /**
+     * Explodes a car out of the gameplay environment.
+     * @param {Vec3} velocity Veclocity vector to follow
+     * @param {Number} step Animation step
+     */
+    explode(velocity, step) {
+        // Set the acceleration due to gravity
+        let gravity = vec3.fromValues(0, -0.2, 0);
+
+        // Add the acceleration to the velocity
+        vec3.add(velocity, velocity, gravity);
+
+        // Translate the car a step
+        mat4.fromTranslation(Globals.translate, velocity);
+        mat4.multiply(Globals.modelMatrices[this.#index], Globals.translate, Globals.modelMatrices[this.#index]);
+        vec3.transformMat4(Globals.modelCenters[this.#index], Globals.modelCenters[this.#index], Globals.translate);
+
+        // Request the next explosion frame
+        if (step < this.#explosionSteps)
+            requestAnimationFrame(() => { this.explode(velocity, step + 1); });
+        else {
+            // When done, move out of bounds
+            vec3.set(velocity, 6.5 - Globals.modelCenters[this.#index][0], 0, -10 - Globals.modelCenters[this.#index][2]);
+            mat4.fromTranslation(Globals.translate, velocity);
+            mat4.multiply(Globals.modelMatrices[this.#index], Globals.translate, Globals.modelMatrices[this.#index]);
+            vec3.transformMat4(Globals.modelCenters[this.#index], Globals.modelCenters[this.#index], Globals.translate);
+        }
     }
 }

@@ -30,6 +30,8 @@ let pause = false;
 let cursorHidden = false;
 let gameOver = false;
 let win = false;
+let interesting = false;
+let cooldown = 0;
 
 
 /**
@@ -322,6 +324,25 @@ function setupListeners() {
             case "KeyR":
                 resetEvent();
                 break;
+
+            case "Space":
+                if (interesting && cooldown <= 0 && !Globals.timeout) {
+                    // Reset the cooldown
+                    cooldown = 100;
+
+                    // Explode
+                    Globals.frog.checkExplosion();
+                }
+                break;
+        }
+
+        // Finally, handle switching to interesting mode separately
+        if (k.key == "!") {
+            // Flip the interesting flag
+            interesting = !interesting;
+
+            // Reveal/hide the explosion cooldown timer
+            document.querySelector("#explosionPanel").style.display = (interesting) ? "block" : "none";
         }
     });
 
@@ -378,11 +399,13 @@ function resetGame() {
     Globals.floatCycle = 75;
     Globals.eye.resetPosition();
     Globals.frog.resetPosition();
+    cooldown = 0;
     curr = undefined, prev = undefined, step = undefined;
 
     // Reset the score panel
-    document.getElementById("score").innerHTML = "Lily Pads: " + Globals.homeCount;
-    document.getElementById("lives").innerHTML = "Lives: " + Globals.lives;
+    document.querySelector("#score").innerHTML = "Lily Pads: " + Globals.homeCount;
+    document.querySelector("#lives").innerHTML = "Lives: " + Globals.lives;
+    document.querySelector("#progress").style.width = "0%";
 
     // Request the next frame to start the game again
     step = window.requestAnimationFrame(renderModels);
@@ -393,8 +416,8 @@ function resetGame() {
  */
 function userWin() {
     // Reveal the "you win" message
-    document.getElementById("message").innerHTML = "YOU WIN!";
-    document.getElementById("endScreen").style.display = "flex";
+    document.querySelector("#message").innerHTML = "YOU WIN!";
+    document.querySelector("#endScreen").style.display = "flex";
 }
 
 /**
@@ -402,8 +425,8 @@ function userWin() {
  */
 function userLose() {
     // Reveal the "game over" message
-    document.getElementById("message").innerHTML = "GAME OVER";
-    document.getElementById("endScreen").style.display = "flex";
+    document.querySelector("#message").innerHTML = "GAME OVER";
+    document.querySelector("#endScreen").style.display = "flex";
 }
 
 /**
@@ -422,6 +445,12 @@ function renderModels(timestamp) {
     Globals.turtles.forEach(turtle => { turtle.updatePosition(deltaTime) }); // Turtles
     Globals.floatCycle = (Globals.floatCycle + (0.06 * deltaTime)) % 250; // Increment float cycle (250 steps = 1 cycle)
     Globals.frog.updatePosition(deltaTime); // Player model
+
+    // Update the cooldown
+    if (interesting && cooldown > 0) {
+        cooldown -= (deltaTime / 100);
+        document.querySelector("#progress").style.width = cooldown + "%";
+    }
     
 
     if (!Globals.freeze) {
@@ -442,7 +471,7 @@ function renderModels(timestamp) {
             Globals.frog.deathReset(); // Reset player
 
             window.setTimeout(() => { step = window.requestAnimationFrame(renderModels) }, 1000); // Set timeout to restart the animation
-            document.getElementById("lives").innerHTML = `Lives: ${Globals.lives}`; // Update scoreboard
+            document.querySelector("#lives").innerHTML = `Lives: ${Globals.lives}`; // Update scoreboard
         }
     }
 
@@ -501,7 +530,7 @@ function renderModels(timestamp) {
         // If each texture has loaded, set loading to false and hide the loading screen
         if (checker(Globals.loadingArray)) {
             Globals.loading = false;
-            document.getElementById("loadingScreen").style.display = "none";
+            document.querySelector("#loadingScreen").style.display = "none";
         }
     }
 

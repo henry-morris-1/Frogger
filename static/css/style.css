@@ -59,6 +59,38 @@ html, body {
     }
 }
 
+#explosionPanel {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    filter: drop-shadow(0 0 5px #000);
+
+    h1 {
+        font-size: 36px;
+        font-family: "bd-geminis", sans-serif;
+        font-weight: 400;
+        font-style: normal;
+        color: #00ff01;
+        user-select: none;
+    }
+
+    #cooldownBar {
+        position: relative;
+        width: 350px;
+        height: 32px;
+        background-color: #00ff01;
+        margin-bottom: 1vh;
+    
+        #progress {
+            width: 0%;
+            position: absolute;
+            inset: 0 auto 0 0;
+            background-color: #000;
+            opacity: 0.5;
+        }
+    }
+}
+
 .menu {
     position: fixed;
     width: 100vw;
